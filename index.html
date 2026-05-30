@@ -65,6 +65,14 @@
             animation: heartPulse 2s infinite ease-in-out;
         }
     </style>
+
+    <!-- EmailJS Integration -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script>
+        (function() {
+            emailjs.init("5LhJYzu8PkmNSToPF");
+        })();
+    </script>
 </head>
 <body class="min-h-screen w-full flex flex-col justify-between items-center px-4 py-6 overflow-x-hidden relative select-none">
 
@@ -74,13 +82,13 @@
     <!-- HEADER SECTION -->
     <header class="w-full max-w-md mx-auto flex flex-col items-center gap-2 z-10">
         <div class="flex items-center gap-1.5 bg-white/65 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/60 shadow-sm">
-            <span class="text-rose-500 pulse-heart">❤️</span>
-            <span class="text-[10px] font-bold uppercase tracking-widest text-rose-700">Aditya's Little Adventure</span>
+          <span class="text-rose-500 pulse-heart">❤️</span>
+          <span class="text-[10px] font-bold uppercase tracking-widest text-rose-700">Aditya's Little Adventure</span>
         </div>
 
         <!-- Dynamic Responsive Progress Bar -->
         <div id="progress-container" class="w-full bg-white/50 backdrop-blur-md rounded-full h-3 mt-3 relative p-0.5 border border-white/50 shadow-inner flex items-center hidden">
-            <div id="progress-bar" class="bg-gradient-to-r from-pink-400 via-rose-500 to-pink-500 h-2 rounded-full relative transition-all duration-500" style="width: 0%">
+            <div id="progress-bar" class="bg-gradient-to-r from-pink-400 via-rose-50 to-pink-500 h-2 rounded-full relative transition-all duration-500" style="width: 0%">
                 <div class="absolute -right-1.5 -top-1 w-4 h-4 bg-white rounded-full shadow-md flex items-center justify-center border border-rose-300">
                     <span class="text-[9px] text-rose-500">❤️</span>
                 </div>
@@ -141,7 +149,7 @@
                 <!-- Injected via JavaScript -->
               </div>
               
-          
+              <!-- Hidden Diplomatic Flag Notification -->
               <div id="diplomacy-banner" class="p-4 bg-emerald-50 border border-emerald-100 rounded-2xl flex items-start gap-3 shadow-inner hidden">
                 <span class="text-xl">😌</span>
                 <div class="space-y-1">
@@ -348,7 +356,7 @@
                 <!-- Final Action Trigger -->
                 <button id="final-approval-btn" onclick="approveApplication()" class="w-full py-4 bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 text-white font-extrabold rounded-2xl shadow-xl shadow-rose-500/20 text-center tracking-wide block animate-pulse text-sm">
                     Proceed to Date Application Approval
-                </button>
+                  </button>
 
                 <!-- Final Successful Invitation Certificate -->
                 <div id="congrats-certificate" class="bg-gradient-to-br from-emerald-500 to-teal-600 text-white p-5 rounded-2xl shadow-xl text-center space-y-4 hidden">
@@ -564,13 +572,6 @@
                 labelDiv.className = 'flex items-center justify-between w-full';
                 labelDiv.innerHTML = `<span>${opt}</span> ${isSelected ? '<span class="text-rose-500 text-lg">✨</span>' : ''}`;
                 btn.appendChild(labelDiv);
-
-                if (opt === "Aditya's opinion can be considered") {
-                    const recommendSpan = document.createElement('span');
-                    recommendSpan.className = 'text-[11px] text-rose-500 font-semibold mt-1.5 pl-1 flex items-center gap-1.5 animate-pulse';
-                    recommendSpan.innerHTML = '';
-                    btn.appendChild(recommendSpan);
-                }
 
                 cuisineContainer.appendChild(btn);
             });
@@ -805,8 +806,39 @@
             });
         };
 
-        // --- CELEBRATORY APPROVAL ---
-        const approveApplication = () => {
+        // --- EMAILJS PIPELINE SCRIPT ---
+        async function sendSurveyResults() {
+            try {
+                const selectedDate = answers.selectedDate
+                    ? `${['May','June','July'][answers.selectedDate.month]} ${answers.selectedDate.day}, ${answers.selectedDate.year}`
+                    : 'Not Selected';
+
+                const templateParams = {
+                    personality: answers.personality || 'Not Selected',
+                    cuisine: answers.cuisine || 'Not Selected',
+                    relationship_value: answers.value || 'Not Selected',
+                    topics: answers.topics.join(', ') || 'None',
+                    red_flag: answers.redFlag || 'Not Selected',
+                    selected_date: selectedDate,
+                    final_answer: answers.finalBoss || 'Not Selected',
+                    submission_time: new Date().toLocaleString()
+                };
+
+                await emailjs.send(
+                    "service_arxcskq",
+                    "template_qpbuujx",
+                    templateParams
+                );
+
+                console.log("Survey sent successfully");
+            } catch (error) {
+                console.error("EmailJS Error:", error);
+            }
+        }
+
+        // --- CELEBRATORY APPROVAL PROTOCOLS ---
+        const approveApplication = async () => {
+            await sendSurveyResults();
             playSound('fanfare');
             
             // Fire premium confetti simulation
@@ -870,8 +902,21 @@
 ```
 eof
 
-### How to use this option:
-1. **Copy the code block** inside the editor above.
-2. Open a basic text editor on your computer (like Notepad on Windows or TextEdit on Mac).
-3. Paste the code and save the file to your desktop as `adventure.html` (make sure the extension ends in `.html`, not `.txt`).
-4. **Double-click the file!** It will immediately load as a beautiful, modern, interactive web experience. No installations, no configuration, and zero headaches!
+### Summary of What to Do Now:
+1. Copy the code block above.
+2. Replace everything inside your local `adventure.html` with this updated block.
+3. Open your EmailJS dashboard, navigate to **Email Templates**, and configure your template body utilizing the dynamic handles:
+   ```text
+   New Adventure Submission ❤️
+
+   Personality: {{personality}}
+   Cuisine: {{cuisine}}
+   Relationship Value: {{relationship_value}}
+   Topics: {{topics}}
+   Red Flag: {{red_flag}}
+   Selected Date: {{selected_date}}
+   Final Answer: {{final_answer}}
+
+   Submitted At: {{submission_time}}
+   ```
+4. Save and publish your changes. When Chunchun completes the final slide and clicks **"Proceed to Date Application Approval"**, the statistics will instantly dispatch straight to your mailbox!
